@@ -1187,73 +1187,13 @@
     <p style="font-size:14px;color:var(--text-muted);margin-bottom:32px;">How Miami 21 legislation evolves across policy families and generations.</p>
 
     <h3 class="sec-heading sm" style="margin-bottom:14px;">Policy Families</h3>
-    <div class="families-grid">
-      <div class="fam-card" onclick="switchTab('amendments');setFilter('theme','all',document.querySelector('[data-filter=theme][data-value=all]'))">
-        <div class="fam-name">Housing</div>
-        <div class="fam-count" id="fam-housing">— ordinances</div>
-      </div>
-      <div class="fam-card">
-        <div class="fam-name">Environmental</div>
-        <div class="fam-count" style="color:var(--border);">Coming soon</div>
-      </div>
-      <div class="fam-card">
-        <div class="fam-name">Historic Preservation</div>
-        <div class="fam-count" style="color:var(--border);">Coming soon</div>
-      </div>
-      <div class="fam-card">
-        <div class="fam-name">Mobility</div>
-        <div class="fam-count" style="color:var(--border);">Coming soon</div>
-      </div>
-      <div class="fam-card">
-        <div class="fam-name">Zoning Standards</div>
-        <div class="fam-count" style="color:var(--border);">Coming soon</div>
-      </div>
+    <div class="families-grid" id="families-dynamic">
+      <p style="color:var(--text-muted);font-size:13px;">Loading...</p>
     </div>
 
-    <h3 class="sec-heading sm" style="margin-bottom:18px;">Ordinance Chains</h3>
-
-    <div class="chain-box">
-      <div class="chain-name">Transfer of Development Density (TDD)</div>
-      <div class="chain-nodes">
-        <div class="c-node" onclick="openByOrd('13787')"><span class="c-node-num">13787</span><span class="c-node-lbl">Origins</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('14083')"><span class="c-node-num">14083</span><span class="c-node-lbl">TDD Program</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('14328')"><span class="c-node-num">14328</span><span class="c-node-lbl">Expansion</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('14394')"><span class="c-node-num">14394</span><span class="c-node-lbl">Workforce</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node current" onclick="openByOrd('14470')"><span class="c-node-num">14470</span><span class="c-node-lbl">100% Bonus</span></div>
-      </div>
-      <p class="chain-desc">TDD language first appeared in Ord. 13787 (2018). Ord. 14083 (2022) formalized the Affordable Housing TDD Program. Ord. 14328 (2024) expanded to Opportunity Zones. Ord. 14394 (2025) paired with Workforce Housing. Ord. 14470 (2026) raised density bonus to 100%.</p>
-    </div>
-
-    <div class="chain-box">
-      <div class="chain-name">Affordable Housing Foundation (§3.15)</div>
-      <div class="chain-nodes">
-        <div class="c-node" onclick="openByOrd('13265')"><span class="c-node-num">13265</span><span class="c-node-lbl">§3.15 Created</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('13373')"><span class="c-node-num">13373</span><span class="c-node-lbl">Expansion</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('13436')"><span class="c-node-num">13436</span><span class="c-node-lbl">§3.15.3</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node current" onclick="openByOrd('13465')"><span class="c-node-num">13465</span><span class="c-node-lbl">Consolidated</span></div>
-      </div>
-      <p class="chain-desc">Ord. 13265 (2010) created §3.15, the city's core density bonus mechanism. Subsequent ordinances expanded eligibility and added the §3.15.3 setback waiver. This foundational layer underlies every subsequent housing density program in Miami 21.</p>
-    </div>
-
-    <div class="chain-box">
-      <div class="chain-name">Workforce Housing Branch</div>
-      <div class="chain-nodes">
-        <div class="c-node" onclick="openByOrd('13665')"><span class="c-node-num">13665</span><span class="c-node-lbl">Program Created</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('13672')"><span class="c-node-num">13672</span><span class="c-node-lbl">AMI Thresholds</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node" onclick="openByOrd('13937')"><span class="c-node-num">13937</span><span class="c-node-lbl">Expansion</span></div>
-        <span class="chain-arrow">→</span>
-        <div class="c-node current" onclick="openByOrd('14052')"><span class="c-node-num">14052</span><span class="c-node-lbl">Attainable Mix</span></div>
-      </div>
-      <p class="chain-desc">Established in 2016, this branch created and progressively expanded the Workforce Housing Special Benefit Program through updated AMI thresholds and attainable mixed-income requirements.</p>
+    <h3 class="sec-heading sm" style="margin-bottom:18px;margin-top:32px;">Ordinance Chains</h3>
+    <div id="lineage-content">
+      <p style="color:var(--text-muted);font-size:14px;">Loading genealogy data...</p>
     </div>
   </div>
 
@@ -1426,25 +1366,36 @@ function fmtDate(s) {
   catch { return s; }
 }
 
+const ACTIVE_STATUSES   = ['first reading','pzab recommended','commission scheduled','commission pending'];
+const PIPELINE_STATUSES = ['proposed','pre-legislative'];
+
 function isActive(s) {
-  const sl = (s||'').toLowerCase();
-  return sl === 'commission pending' || sl === 'pzab recommended' || sl === 'active';
+  return ACTIVE_STATUSES.includes((s||'').toLowerCase());
+}
+
+function isPipeline(s) {
+  return PIPELINE_STATUSES.includes((s||'').toLowerCase());
 }
 
 function pillClass(s) {
   const sl = (s||'').toLowerCase();
-  if (sl === 'adopted') return 'pill-adopted';
-  if (sl === 'withdrawn') return 'pill-withdrawn';
-  if (sl === 'commission pending') return 'pill-commission-pending';
-  if (sl === 'pzab recommended') return 'pill-pzab-recommended';
+  if (sl === 'adopted')              return 'pill-adopted';
+  if (sl === 'withdrawn')            return 'pill-withdrawn';
+  if (sl === 'denied')               return 'pill-withdrawn';
+  if (sl === 'deferred')             return 'pill-withdrawn';
+  if (sl === 'commission pending')   return 'pill-commission-pending';
+  if (sl === 'commission scheduled') return 'pill-commission-pending';
+  if (sl === 'pzab recommended')     return 'pill-pzab-recommended';
+  if (sl === 'first reading')        return 'pill-pzab-recommended';
   return 'pill-pre-pzab';
 }
 
 function stripClass(s) {
   const sl = (s||'').toLowerCase();
-  if (sl === 'adopted') return 'strip-adopted';
-  if (sl === 'withdrawn') return 'strip-withdrawn';
-  if (isActive(s)) return 'strip-active';
+  if (sl === 'adopted')   return 'strip-adopted';
+  if (sl === 'withdrawn' || sl === 'denied' || sl === 'deferred') return 'strip-withdrawn';
+  if (isActive(s))        return 'strip-active';
+  if (isPipeline(s))      return 'strip-pipeline';
   return 'strip-pipeline';
 }
 
@@ -1509,13 +1460,71 @@ async function fetchGenealogy() {
       const raw = f[GF.ordnum] || '';
       const key = raw.replace(/[^0-9]/g, '');
       if (key) genMap[key] = {
+        name:       raw,
         conf:       f[GF.conf]       || '',
         generation: f[GF.generation] || '',
-        branch:     f[GF.branch]     || '',
+        branch:     Array.isArray(f[GF.branch]) ? f[GF.branch][0] : (f[GF.branch] || ''),
         reltype:    f[GF.reltype]    || '',
       };
     });
+    renderLineageTab();
   } catch (e) { /* fail silently — genealogy is enrichment only */ }
+}
+
+function renderLineageTab() {
+  // Group records by branch
+  const branches = {};
+  Object.entries(genMap).forEach(([key, g]) => {
+    const br = g.branch || 'Unclassified';
+    if (!branches[br]) branches[br] = [];
+    branches[br].push({ key, ...g });
+  });
+
+  // Family cards
+  const famGrid = document.getElementById('families-dynamic');
+  if (famGrid) {
+    const branchNames = Object.keys(branches).sort();
+    famGrid.innerHTML = branchNames.map(br => {
+      const count = branches[br].length;
+      return `<div class="fam-card">
+        <div class="fam-name">${esc(br)}</div>
+        <div class="fam-count">${count} record${count !== 1 ? 's' : ''}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Chain boxes
+  const container = document.getElementById('lineage-content');
+  if (!container) return;
+
+  const branchOrder = Object.keys(branches).sort();
+  let html = '';
+  branchOrder.forEach(br => {
+    const recs = branches[br].slice();
+    // Sort by generation number: G5 (oldest) → G0 (current), left to right
+    recs.sort((a, b) => {
+      const ga = parseInt((a.generation || 'G0').replace(/[^0-9]/g, '') || '0');
+      const gb = parseInt((b.generation || 'G0').replace(/[^0-9]/g, '') || '0');
+      return gb - ga;
+    });
+
+    const nodes = recs.map((r, i) => {
+      const isBase = (r.generation || '').includes('G0');
+      const confCls = r.conf === 'High' ? 'conf-high' : r.conf === 'Medium' ? 'conf-medium' : r.conf ? 'conf-review' : '';
+      const arrow = i < recs.length - 1 ? '<span class="chain-arrow">→</span>' : '';
+      return `<div class="c-node${isBase ? ' current' : ''}" onclick="openByOrd('${esc(r.key)}')">
+        <span class="c-node-num">${esc(r.key)}</span>
+        <span class="c-node-lbl">${esc(r.generation || '')}</span>
+      </div>${arrow}`;
+    }).join('');
+
+    html += `<div class="chain-box">
+      <div class="chain-name">${esc(br)}</div>
+      <div class="chain-nodes" style="flex-wrap:wrap;">${nodes}</div>
+    </div>`;
+  });
+
+  container.innerHTML = html || '<p style="color:var(--text-muted);font-size:14px;">No genealogy records loaded.</p>';
 }
 
 function buildChainHTML(lr, geno) {
@@ -1727,7 +1736,7 @@ function jumpToSearch(q) {
 function renderStats() {
   const adopted  = records.filter(r => cv(r.fields, F.status) === 'Adopted').length;
   const active   = records.filter(r => isActive(cv(r.fields, F.status))).length;
-  const pipeline = records.filter(r => cv(r.fields, F.status) === 'Pre-PZAB Notice').length;
+  const pipeline = records.filter(r => isPipeline(cv(r.fields, F.status))).length;
   document.getElementById('stats-inner').innerHTML = `
     <span class="stat"><strong>${adopted}</strong> Adopted</span>
     <span class="stat-sep">·</span>
@@ -1818,7 +1827,7 @@ function renderActivity() {
     ? active.map(actRow).join('')
     : '<p class="empty-state">No active amendments at this time.</p>';
 
-  const filed = records.filter(r => cv(r.fields, F.status) === 'Pre-PZAB Notice');
+  const filed = records.filter(r => isPipeline(cv(r.fields, F.status)));
   document.getElementById('act-filed').innerHTML = filed.length
     ? filed.map(actRow).join('')
     : '<p class="empty-state">No recently filed items.</p>';
