@@ -1363,7 +1363,7 @@
 <script>
 // ── Config ───────────────────────────────────────────────
 const BASE      = 'appPgG1gwtIqJweV9';
-const TOKEN     = 'patxuvaav7TOsnxVU.fd1ee3cd568b3884224325f9f4d04722396b872e0e6b7230ecdb7893c3e2cae3';
+const PROXY     = 'https://codeline-proxy.6dcmjbvsm9.workers.dev/airtable';
 const TABLE     = 'tblTYhR43jOXqd0b3';
 const GEN_TABLE = 'tblwrwXFgD14HUnzu';
 
@@ -1482,8 +1482,8 @@ function parseTL(text) {
 async function fetchAll() {
   let all = [], offset = null;
   do {
-    const url = `https://api.airtable.com/v0/${BASE}/${TABLE}?pageSize=100&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    const url = `${PROXY}/${BASE}/${TABLE}?pageSize=100&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`Airtable ${res.status}`);
     const data = await res.json();
     all = all.concat(data.records || []);
@@ -1497,8 +1497,8 @@ async function fetchGenealogy() {
   try {
     let all = [], offset = null;
     do {
-      const url = `https://api.airtable.com/v0/${BASE}/${GEN_TABLE}?pageSize=100&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
+      const url = `${PROXY}/${BASE}/${GEN_TABLE}?pageSize=100&returnFieldsByFieldId=true${offset ? '&offset=' + offset : ''}`;
+      const res = await fetch(url);
       if (!res.ok) return;
       const data = await res.json();
       all = all.concat(data.records || []);
