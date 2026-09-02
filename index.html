@@ -1642,12 +1642,12 @@ function renderSelectedChain(branches) {
   // Sort by ordnum ascending — Miami ordinance numbers are sequential, so this is chronological
   recs.sort((a, b) => parseInt(a.key || '0') - parseInt(b.key || '0'));
 
-  const MAX = 12;
-  const overflow = recs.length > MAX;
-  const display  = overflow ? recs.slice(0, MAX) : recs;
+
+
+  const display = recs;
 
   const nodesHTML = display.map((r, i) => {
-    const isLast      = i === display.length - 1 && !overflow;
+    const isLast      = i === display.length - 1;
     const connector   = !isLast ? `<div class="lin-connector">
       <div class="lin-connector-line"></div>
       ${r.reltype ? `<div class="lin-rel">${esc(r.reltype)}</div>` : ''}
@@ -1661,18 +1661,13 @@ function renderSelectedChain(branches) {
     </div>${connector}`;
   }).join('');
 
-  const overflowHTML = overflow
-    ? `<div class="lin-connector"><div class="lin-connector-line"></div></div>
-       <div style="font-size:12px;color:var(--text-muted);padding-top:18px;flex-shrink:0;">+${recs.length - MAX} more</div>`
-    : '';
-
   container.innerHTML = `<div class="lin-chain-wrap">
     <div class="lin-chain-header">
       <span class="lin-chain-title">${esc(selectedBranch)}</span>
       <span class="lin-chain-count">${recs.length} ordinance${recs.length !== 1 ? 's' : ''}</span>
     </div>
     <div class="lin-track-wrapper">
-      <div class="lin-track">${nodesHTML}${overflowHTML}</div>
+      <div class="lin-track">${nodesHTML}</div>
     </div>
     <p class="lin-help">Click any node to open its legislative record.</p>
   </div>
