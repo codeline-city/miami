@@ -1604,7 +1604,7 @@ function renderFamilyGrid(branches) {
       ? `${Math.min(...yrs)}–${Math.max(...yrs)}`
       : yrs.length === 1 ? String(yrs[0]) : '';
     return `<div class="fam-card${isSelected ? ' fam-selected' : ''}${!qualifies ? ' fam-thin' : ''}"
-                 onclick="selectBranch(${JSON.stringify(br)})">
+                 onclick="selectBranch('${esc(br)}')">
       <div class="fam-name">${esc(br)}</div>
       <div class="fam-count">${ordCount} ordinance${ordCount !== 1 ? 's' : ''}</div>
       ${yearRange ? `<div class="fam-years">${yearRange}</div>` : ''}
