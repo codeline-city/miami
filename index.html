@@ -1526,7 +1526,7 @@ async function fetchGenealogy() {
         reltype:    f[GF.reltype]    || '',
       };
     });
-    renderLineageTab();
+    // renderLineageTab() is called from init after cross-reference enrichment
   } catch (e) { /* fail silently — genealogy is enrichment only */ }
 }
 
@@ -2009,6 +2009,8 @@ function renderLineageCounts() {
         genMap[key].amendId   = r.id;
       }
     });
+    // Now render lineage with enriched genMap (amendId + amendYear are set)
+    renderLineageTab();
 
     renderStats();
     renderThemeFilters();
