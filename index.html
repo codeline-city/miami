@@ -203,6 +203,7 @@
     .pill-commission-pending,
     .pill-pzab-recommended,
     .pill-active               { background: var(--amber-light); color: var(--amber); border: 1px solid rgba(184,122,32,0.3); }
+    .pill-pzab-scheduled       { background: var(--teal-light); color: var(--teal); border: 1px solid rgba(37,95,103,0.3); }
     .pill-withdrawn            { background: var(--red-light); color: var(--red-muted); }
     .pill-pre-pzab             { background: var(--grey-light); color: var(--grey-text); }
 
@@ -732,71 +733,113 @@
     /* ── LINEAGE ──────────────────────────────────── */
     .families-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 10px;
-      margin-bottom: 48px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+      margin-bottom: 32px;
     }
 
     .fam-card {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1.5px solid var(--border);
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px 16px;
       cursor: pointer;
-      transition: border-color 0.12s, box-shadow 0.12s;
+      transition: border-color 0.12s, background 0.12s;
     }
+    .fam-card:hover       { border-color: var(--teal); }
+    .fam-card.fam-selected { border-color: var(--teal); background: var(--teal-light); }
+    .fam-card.fam-thin    { opacity: 0.5; }
+    .fam-name  { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .fam-count { font-size: 11px; color: var(--text-muted); }
 
-    .fam-card:hover { border-color: var(--teal); box-shadow: 0 2px 8px rgba(37,95,103,0.1); }
-    .fam-name  { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
-    .fam-count { font-size: 12px; color: var(--text-muted); }
-
-    .chain-box {
+    /* Visual horizontal chain */
+    .lin-chain-wrap {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 22px 24px;
-      margin-bottom: 16px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 8px;
     }
-
-    .chain-name {
-      font-family: Georgia, serif;
-      font-size: 16px;
-      font-weight: bold;
-      color: var(--text);
-      margin-bottom: 16px;
+    .lin-chain-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid var(--border);
     }
+    .lin-chain-title { font-family: Georgia, serif; font-size: 16px; font-weight: bold; color: var(--text); }
+    .lin-chain-count { font-size: 12px; color: var(--text-muted); }
+    .lin-track-wrapper { overflow-x: auto; padding: 28px 28px 12px; }
+    .lin-track { display: flex; align-items: flex-start; min-width: max-content; }
 
-    .chain-nodes {
+    .lin-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 96px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .lin-node-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--teal);
+      background: var(--surface);
+      color: var(--teal);
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .c-node {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 12px;
+      justify-content: center;
       text-align: center;
-      cursor: pointer;
-      transition: border-color 0.12s;
+      padding: 4px;
+      transition: background 0.15s, color 0.15s;
+      line-height: 1.2;
     }
+    .lin-node:hover .lin-node-circle { background: var(--teal); color: #fff; }
+    .lin-node-year  { font-size: 11px; color: var(--text-muted); margin-top: 7px; font-weight: 500; }
+    .lin-node-label { font-size: 10px; color: var(--text-mid); margin-top: 3px; text-align: center; max-width: 92px; line-height: 1.35; }
 
+    .lin-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 24px;
+      width: 52px;
+      flex-shrink: 0;
+    }
+    .lin-connector-line {
+      width: 100%;
+      height: 0;
+      border-top: 1.5px solid var(--border);
+      position: relative;
+    }
+    .lin-connector-line::after {
+      content: '›';
+      position: absolute;
+      right: -7px;
+      top: -12px;
+      font-size: 18px;
+      color: var(--border);
+      line-height: 1;
+    }
+    .lin-rel { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; white-space: nowrap; }
+    .lin-help { font-size: 12px; color: var(--text-muted); padding: 10px 28px 18px; }
+    .chain-thin-msg { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; }
+
+    /* Keep for homepage preview */
+    .chain-name  { font-family: Georgia, serif; font-size: 16px; font-weight: bold; color: var(--text); margin-bottom: 16px; }
+    .chain-nodes { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .c-node { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; text-align: center; cursor: pointer; transition: border-color 0.12s; }
     .c-node:hover { border-color: var(--teal); }
-
-    .c-node.current {
-      border: 2px solid var(--teal);
-      background: var(--teal-light);
-    }
-
-    .c-node-num   { font-family: 'Courier New', monospace; font-size: 12px; font-weight: bold; color: var(--text); display: block; }
+    .c-node.current { border: 2px solid var(--teal); background: var(--teal-light); }
+    .c-node-num { font-family: 'Courier New', monospace; font-size: 12px; font-weight: bold; color: var(--text); display: block; }
     .c-node.current .c-node-num { color: var(--teal); }
-    .c-node-lbl   { font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; max-width: 80px; }
-
-    .chain-arrow  { color: var(--accent); font-size: 16px; font-weight: bold; user-select: none; }
-    .chain-desc   { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .c-node-lbl { font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; max-width: 80px; }
+    .chain-arrow { color: var(--accent); font-size: 16px; font-weight: bold; user-select: none; }
+    .chain-desc  { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
     /* ── METHOD ───────────────────────────────────── */
     .method-wrap { max-width: 700px; }
@@ -1038,8 +1081,6 @@
     <span class="stat-sep">·</span>
     <span class="stat"><strong>—</strong> Active</span>
     <span class="stat-sep">·</span>
-    <span class="stat"><strong>—</strong> In Pipeline</span>
-    <span class="stat-sep">·</span>
     <span class="stat">Since 2010</span>
   </div>
 </div>
@@ -1133,12 +1174,14 @@
     <div id="filter-bar">
       <div class="filter-row">
         <span class="filter-lbl">Status</span>
-        <button class="f-chip active" data-filter="status" data-value="all"                 onclick="setFilter('status','all',this)">All</button>
-        <button class="f-chip"       data-filter="status" data-value="Commission Pending"   onclick="setFilter('status','Commission Pending',this)">Commission Pending</button>
-        <button class="f-chip"       data-filter="status" data-value="PZAB Recommended"     onclick="setFilter('status','PZAB Recommended',this)">PZAB Recommended</button>
-        <button class="f-chip"       data-filter="status" data-value="Adopted"              onclick="setFilter('status','Adopted',this)">Adopted</button>
-        <button class="f-chip"       data-filter="status" data-value="Withdrawn"            onclick="setFilter('status','Withdrawn',this)">Withdrawn</button>
-        <button class="f-chip"       data-filter="status" data-value="Pre-PZAB Notice"      onclick="setFilter('status','Pre-PZAB Notice',this)">Pre-PZAB Notice</button>
+        <button class="f-chip active" data-filter="status" data-value="all"                    onclick="setFilter('status','all',this)">All</button>
+        <button class="f-chip"       data-filter="status" data-value="PZAB Scheduled"          onclick="setFilter('status','PZAB Scheduled',this)">PZAB Scheduled</button>
+        <button class="f-chip"       data-filter="status" data-value="PZAB Recommended"        onclick="setFilter('status','PZAB Recommended',this)">PZAB Recommended</button>
+        <button class="f-chip"       data-filter="status" data-value="First Reading"           onclick="setFilter('status','First Reading',this)">First Reading</button>
+        <button class="f-chip"       data-filter="status" data-value="Adopted"                 onclick="setFilter('status','Adopted',this)">Adopted</button>
+        <button class="f-chip"       data-filter="status" data-value="Deferred"                onclick="setFilter('status','Deferred',this)">Deferred</button>
+        <button class="f-chip"       data-filter="status" data-value="Withdrawn"               onclick="setFilter('status','Withdrawn',this)">Withdrawn</button>
+        <button class="f-chip"       data-filter="status" data-value="Denied"                  onclick="setFilter('status','Denied',this)">Denied</button>
       </div>
       <div class="filter-row">
         <span class="filter-lbl">Transect</span>
@@ -1171,11 +1214,6 @@
     </div>
 
     <div class="act-section">
-      <h3 class="sec-heading sm">Recently Filed</h3>
-      <div id="act-filed"><div class="empty-state">Loading…</div></div>
-    </div>
-
-    <div class="act-section">
       <h3 class="sec-heading sm">Recently Adopted</h3>
       <div id="act-adopted"><div class="empty-state">Loading…</div></div>
     </div>
@@ -1184,14 +1222,13 @@
   <!-- ░░ LINEAGE ░░ -->
   <div id="tab-lineage" class="tab-panel" role="tabpanel" aria-label="Lineage">
     <h2 class="sec-heading" style="margin-bottom:6px;">Policy Lineage</h2>
-    <p style="font-size:14px;color:var(--text-muted);margin-bottom:32px;">How Miami 21 legislation evolves across policy families and generations.</p>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:4px;">How Miami legislation evolves across policy families and generations.</p>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:28px;">Select a policy family to explore its legislative chain.</p>
 
-    <h3 class="sec-heading sm" style="margin-bottom:14px;">Policy Families</h3>
     <div class="families-grid" id="families-dynamic">
       <p style="color:var(--text-muted);font-size:13px;">Loading...</p>
     </div>
 
-    <h3 class="sec-heading sm" style="margin-bottom:18px;margin-top:32px;">Ordinance Chains</h3>
     <div id="lineage-content">
       <p style="color:var(--text-muted);font-size:14px;">Loading genealogy data...</p>
     </div>
@@ -1311,9 +1348,10 @@ const GEN_TABLE = 'tblwrwXFgD14HUnzu';
 const GF = {
   ordnum:     'fldeWGYNAGmDm398i',  // Ordinance #
   conf:       'fldnlYZz0BkdMpC0b',  // Confidence (High / Medium / Review)
-  generation: 'fldZ32LGe1qMnvuBt',  // Generation (G1–G5…)
+  generation: 'fldZ32LGe1qMnvuBt',  // Generation (G0 = anchor; higher = older)
   branch:     'fldhIrNChUjlrCmHk',  // Branch name
   reltype:    'fldRSvHZqJeRyCNDi',  // Relationship Type
+  date:       'fldEMRDoR4qiWyYEK',  // Ordinance date
 };
 
 const F = {
@@ -1339,10 +1377,11 @@ const F = {
 };
 
 // ── State ─────────────────────────────────────────────────
-let records = [];
-let genMap   = {};  // normalized ordnum → { conf, generation, branch, reltype }
-let filters  = { status: 'all', transect: 'all', theme: 'all' };
-let query    = '';
+let records        = [];
+let genMap         = {};  // first ordnum digits → enriched entry
+let selectedBranch = null;
+let filters        = { status: 'all', transect: 'all', theme: 'all' };
+let query          = '';
 
 // ── Utils ─────────────────────────────────────────────────
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1366,15 +1405,10 @@ function fmtDate(s) {
   catch { return s; }
 }
 
-const ACTIVE_STATUSES   = ['first reading','pzab recommended','commission scheduled','commission pending'];
-const PIPELINE_STATUSES = ['proposed','pre-legislative'];
+const ACTIVE_STATUSES   = ['pzab scheduled','pzab recommended','first reading'];
 
 function isActive(s) {
   return ACTIVE_STATUSES.includes((s||'').toLowerCase());
-}
-
-function isPipeline(s) {
-  return PIPELINE_STATUSES.includes((s||'').toLowerCase());
 }
 
 function pillClass(s) {
@@ -1387,6 +1421,7 @@ function pillClass(s) {
   if (sl === 'commission scheduled') return 'pill-commission-pending';
   if (sl === 'pzab recommended')     return 'pill-pzab-recommended';
   if (sl === 'first reading')        return 'pill-pzab-recommended';
+  if (sl === 'pzab scheduled')       return 'pill-pzab-scheduled';
   return 'pill-pre-pzab';
 }
 
@@ -1395,7 +1430,6 @@ function stripClass(s) {
   if (sl === 'adopted')   return 'strip-adopted';
   if (sl === 'withdrawn' || sl === 'denied' || sl === 'deferred') return 'strip-withdrawn';
   if (isActive(s))        return 'strip-active';
-  if (isPipeline(s))      return 'strip-pipeline';
   return 'strip-pipeline';
 }
 
@@ -1458,9 +1492,29 @@ async function fetchGenealogy() {
     all.forEach(r => {
       const f   = r.fields;
       const raw = f[GF.ordnum] || '';
-      const key = raw.replace(/[^0-9]/g, '');
+      // Take first 4+ digit sequence so "Ord. 19332 / Ord. 19331" → "19332"
+      const keyMatch  = raw.match(/(?:ord\.?\s*)(\d{4,})/i) || raw.match(/^(\d{4,})/);
+      const key       = keyMatch ? keyMatch[1] : '';
+      // Records are actual ordinances if they start with a digit or "Ord."
+      const rawL  = raw.toLowerCase();
+      const isOrd = !!key && !rawL.startsWith('file ') && !rawL.startsWith('r-') && !rawL.startsWith('res.');
+      // Human-readable label after " — "
+      const dashIdx   = raw.indexOf(' — ');
+      const fullLabel = dashIdx > -1 ? raw.slice(dashIdx + 3) : '';
+      const cleanLbl  = fullLabel.replace(/^Miami 21:?\s*/i, '').trim();
+      const shortLbl  = cleanLbl.length > 28
+        ? cleanLbl.slice(0, 28).replace(/\s+\S*$/, '') + '…'
+        : cleanLbl;
+      // Year from date field
+      const dateVal   = f[GF.date] || '';
+      const year      = dateVal ? dateVal.slice(0, 4) : '';
       if (key) genMap[key] = {
         name:       raw,
+        ordDisplay: key,
+        label:      fullLabel,
+        shortLbl:   shortLbl,
+        year:       year,
+        isOrd:      isOrd,
         conf:       f[GF.conf]       || '',
         generation: f[GF.generation] || '',
         branch:     Array.isArray(f[GF.branch]) ? f[GF.branch][0] : (f[GF.branch] || ''),
@@ -1471,60 +1525,127 @@ async function fetchGenealogy() {
   } catch (e) { /* fail silently — genealogy is enrichment only */ }
 }
 
-function renderLineageTab() {
-  // Group records by branch
+// ── Lineage helpers ───────────────────────────────────────
+function buildBranches() {
   const branches = {};
   Object.entries(genMap).forEach(([key, g]) => {
     const br = g.branch || 'Unclassified';
     if (!branches[br]) branches[br] = [];
     branches[br].push({ key, ...g });
   });
+  return branches;
+}
 
-  // Family cards
+function countOrd(recs) {
+  return recs.filter(r => r.isOrd).length;
+}
+
+function selectBranch(br) {
+  selectedBranch = br;
+  const branches = buildBranches();
+  renderFamilyGrid(branches);
+  renderSelectedChain(branches);
+}
+
+function renderFamilyGrid(branches) {
   const famGrid = document.getElementById('families-dynamic');
-  if (famGrid) {
-    const branchNames = Object.keys(branches).sort();
-    famGrid.innerHTML = branchNames.map(br => {
-      const count = branches[br].length;
-      return `<div class="fam-card">
-        <div class="fam-name">${esc(br)}</div>
-        <div class="fam-count">${count} record${count !== 1 ? 's' : ''}</div>
-      </div>`;
-    }).join('');
-  }
+  if (!famGrid) return;
+  const branchNames = Object.keys(branches).sort();
+  famGrid.innerHTML = branchNames.map(br => {
+    const ordCount   = countOrd(branches[br]);
+    const isSelected = br === selectedBranch;
+    const qualifies  = ordCount >= 3;
+    return `<div class="fam-card${isSelected ? ' fam-selected' : ''}${!qualifies ? ' fam-thin' : ''}"
+                 onclick="selectBranch(${JSON.stringify(br)})">
+      <div class="fam-name">${esc(br)}</div>
+      <div class="fam-count">${ordCount} ordinance${ordCount !== 1 ? 's' : ''}</div>
+    </div>`;
+  }).join('');
+}
 
-  // Chain boxes
+function renderSelectedChain(branches) {
   const container = document.getElementById('lineage-content');
   if (!container) return;
 
-  const branchOrder = Object.keys(branches).sort();
-  let html = '';
-  branchOrder.forEach(br => {
-    const recs = branches[br].slice();
-    // Sort by generation number: G5 (oldest) → G0 (current), left to right
-    recs.sort((a, b) => {
-      const ga = parseInt((a.generation || 'G0').replace(/[^0-9]/g, '') || '0');
-      const gb = parseInt((b.generation || 'G0').replace(/[^0-9]/g, '') || '0');
-      return gb - ga;
-    });
+  if (!selectedBranch || !branches[selectedBranch]) {
+    container.innerHTML = '<p style="color:var(--text-muted);font-size:14px;padding:16px 0;">Select a policy family above.</p>';
+    return;
+  }
 
-    const nodes = recs.map((r, i) => {
-      const isBase = (r.generation || '').includes('G0');
-      const confCls = r.conf === 'High' ? 'conf-high' : r.conf === 'Medium' ? 'conf-medium' : r.conf ? 'conf-review' : '';
-      const arrow = i < recs.length - 1 ? '<span class="chain-arrow">→</span>' : '';
-      return `<div class="c-node${isBase ? ' current' : ''}" onclick="openByOrd('${esc(r.key)}')">
-        <span class="c-node-num">${esc(r.key)}</span>
-        <span class="c-node-lbl">${esc(r.generation || '')}</span>
-      </div>${arrow}`;
-    }).join('');
+  // Only actual ordinances in the chain
+  const recs = branches[selectedBranch].filter(r => r.isOrd);
 
-    html += `<div class="chain-box">
-      <div class="chain-name">${esc(br)}</div>
-      <div class="chain-nodes" style="flex-wrap:wrap;">${nodes}</div>
+  if (recs.length < 3) {
+    const count = recs.length;
+    container.innerHTML = `<div class="chain-thin-msg">
+      <p style="color:var(--text-mid);font-size:14px;line-height:1.7;margin:0;">
+        <strong>${esc(selectedBranch)}</strong> — ${
+          count === 0 ? 'No verified ordinances yet in this policy area.'
+        : count === 1 ? 'One verified ordinance is documented in this policy area.'
+        :               'Two verified ordinances are documented in this policy area.'
+        }
+        A full legislative chain will appear when three or more verified ordinances are on record.
+      </p>
     </div>`;
+    return;
+  }
+
+  // Sort: highest generation number (oldest) → left; G0 (current) → right
+  recs.sort((a, b) => {
+    const ga = parseInt((a.generation || 'G0').replace(/[^0-9]/g, '') || '0');
+    const gb = parseInt((b.generation || 'G0').replace(/[^0-9]/g, '') || '0');
+    return gb - ga;
   });
 
-  container.innerHTML = html || '<p style="color:var(--text-muted);font-size:14px;">No genealogy records loaded.</p>';
+  const MAX = 12;
+  const overflow = recs.length > MAX;
+  const display  = overflow ? recs.slice(0, MAX) : recs;
+
+  const nodesHTML = display.map((r, i) => {
+    const isLast    = i === display.length - 1 && !overflow;
+    const connector = !isLast ? `<div class="lin-connector">
+      <div class="lin-connector-line"></div>
+      ${r.reltype ? `<div class="lin-rel">${esc(r.reltype)}</div>` : ''}
+    </div>` : '';
+    return `<div class="lin-node" onclick="openByOrd('${esc(r.key)}')" title="${esc(r.name || r.key)}">
+      <div class="lin-node-circle">${esc(r.ordDisplay || r.key)}</div>
+      ${r.year    ? `<div class="lin-node-year">${esc(r.year)}</div>`    : ''}
+      ${r.shortLbl? `<div class="lin-node-label">${esc(r.shortLbl)}</div>` : ''}
+    </div>${connector}`;
+  }).join('');
+
+  const overflowHTML = overflow
+    ? `<div class="lin-connector"><div class="lin-connector-line"></div></div>
+       <div style="font-size:12px;color:var(--text-muted);padding-top:18px;flex-shrink:0;">+${recs.length - MAX} more</div>`
+    : '';
+
+  container.innerHTML = `<div class="lin-chain-wrap">
+    <div class="lin-chain-header">
+      <span class="lin-chain-title">${esc(selectedBranch)}</span>
+      <span class="lin-chain-count">${recs.length} ordinance${recs.length !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="lin-track-wrapper">
+      <div class="lin-track">${nodesHTML}${overflowHTML}</div>
+    </div>
+    <p class="lin-help">Click any node to open its full legislative record.</p>
+  </div>`;
+}
+
+function renderLineageTab() {
+  const branches = buildBranches();
+
+  // Default selection: prefer Housing TDD, else first branch with ≥3 ordinances
+  if (!selectedBranch) {
+    const preferred = ['Housing TDD', 'Transfer of Development Density', 'Affordable Housing',
+                       'Historic Districts', 'Tree Protection'];
+    selectedBranch  = preferred.find(p => branches[p] && countOrd(branches[p]) >= 3)
+      || Object.keys(branches).sort().find(br => countOrd(branches[br]) >= 3)
+      || Object.keys(branches).sort()[0]
+      || null;
+  }
+
+  renderFamilyGrid(branches);
+  renderSelectedChain(branches);
 }
 
 function buildChainHTML(lr, geno) {
@@ -1734,15 +1855,12 @@ function jumpToSearch(q) {
 
 // ── Stats ──────────────────────────────────────────────────
 function renderStats() {
-  const adopted  = records.filter(r => cv(r.fields, F.status) === 'Adopted').length;
-  const active   = records.filter(r => isActive(cv(r.fields, F.status))).length;
-  const pipeline = records.filter(r => isPipeline(cv(r.fields, F.status))).length;
+  const adopted = records.filter(r => cv(r.fields, F.status) === 'Adopted').length;
+  const active  = records.filter(r => isActive(cv(r.fields, F.status))).length;
   document.getElementById('stats-inner').innerHTML = `
     <span class="stat"><strong>${adopted}</strong> Adopted</span>
     <span class="stat-sep">·</span>
     <span class="stat"><strong>${active}</strong> Active</span>
-    <span class="stat-sep">·</span>
-    <span class="stat"><strong>${pipeline}</strong> In Pipeline</span>
     <span class="stat-sep">·</span>
     <span class="stat">Since 2010</span>`;
 }
@@ -1827,10 +1945,6 @@ function renderActivity() {
     ? active.map(actRow).join('')
     : '<p class="empty-state">No active amendments at this time.</p>';
 
-  const filed = records.filter(r => isPipeline(cv(r.fields, F.status)));
-  document.getElementById('act-filed').innerHTML = filed.length
-    ? filed.map(actRow).join('')
-    : '<p class="empty-state">No recently filed items.</p>';
 
   const adopted = records.filter(r => cv(r.fields, F.status) === 'Adopted').slice(0, 5);
   document.getElementById('act-adopted').innerHTML = adopted.length
