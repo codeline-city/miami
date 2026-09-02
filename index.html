@@ -799,8 +799,13 @@
       line-height: 1.2;
     }
     .lin-node:hover .lin-node-circle { background: var(--teal); color: #fff; }
+    .lin-node-ref .lin-node-circle   { border-style: dashed; opacity: 0.55; cursor: default; }
+    .lin-node-ref:hover .lin-node-circle { background: var(--surface); color: var(--teal); }
     .lin-node-year  { font-size: 11px; color: var(--text-muted); margin-top: 7px; font-weight: 500; }
     .lin-node-label { font-size: 10px; color: var(--text-mid); margin-top: 3px; text-align: center; max-width: 92px; line-height: 1.35; }
+    .lin-node-hint  { font-size: 9px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; opacity: 0; transition: opacity 0.15s; }
+    .lin-node:not(.lin-node-ref):hover .lin-node-hint { opacity: 1; }
+    .fam-years { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
     .lin-connector {
       display: flex;
@@ -1555,10 +1560,18 @@ function renderFamilyGrid(branches) {
     const ordCount   = countOrd(branches[br]);
     const isSelected = br === selectedBranch;
     const qualifies  = ordCount >= 3;
+    const yrs = branches[br]
+      .filter(r => r.amendYear)
+      .map(r => parseInt(r.amendYear))
+      .filter(y => !isNaN(y));
+    const yearRange = yrs.length >= 2
+      ? `${Math.min(...yrs)}–${Math.max(...yrs)}`
+      : yrs.length === 1 ? String(yrs[0]) : '';
     return `<div class="fam-card${isSelected ? ' fam-selected' : ''}${!qualifies ? ' fam-thin' : ''}"
                  onclick="selectBranch(${JSON.stringify(br)})">
       <div class="fam-name">${esc(br)}</div>
       <div class="fam-count">${ordCount} ordinance${ordCount !== 1 ? 's' : ''}</div>
+      ${yearRange ? `<div class="fam-years">${yearRange}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -1590,27 +1603,28 @@ function renderSelectedChain(branches) {
     return;
   }
 
-  // Sort: highest generation number (oldest) → left; G0 (current) → right
-  recs.sort((a, b) => {
-    const ga = parseInt((a.generation || 'G0').replace(/[^0-9]/g, '') || '0');
-    const gb = parseInt((b.generation || 'G0').replace(/[^0-9]/g, '') || '0');
-    return gb - ga;
-  });
+  // Sort by ordnum ascending — Miami ordinance numbers are sequential, so this is chronological
+  recs.sort((a, b) => parseInt(a.key || '0') - parseInt(b.key || '0'));
 
   const MAX = 12;
   const overflow = recs.length > MAX;
   const display  = overflow ? recs.slice(0, MAX) : recs;
 
   const nodesHTML = display.map((r, i) => {
-    const isLast    = i === display.length - 1 && !overflow;
-    const connector = !isLast ? `<div class="lin-connector">
+    const isLast      = i === display.length - 1 && !overflow;
+    const connector   = !isLast ? `<div class="lin-connector">
       <div class="lin-connector-line"></div>
       ${r.reltype ? `<div class="lin-rel">${esc(r.reltype)}</div>` : ''}
     </div>` : '';
-    return `<div class="lin-node" onclick="openByOrd('${esc(r.key)}')" title="${esc(r.name || r.key)}">
+    const displayYear = r.amendYear || r.year || '';
+    const clickable   = !!r.amendId;
+    const clickAttr   = clickable ? `onclick="openByOrd('${esc(r.key)}')"` : '';
+    const nodeCls     = clickable ? 'lin-node' : 'lin-node lin-node-ref';
+    return `<div class="${nodeCls}" ${clickAttr} title="${esc(r.name || r.key)}">
       <div class="lin-node-circle">${esc(r.ordDisplay || r.key)}</div>
-      ${r.year    ? `<div class="lin-node-year">${esc(r.year)}</div>`    : ''}
-      ${r.shortLbl? `<div class="lin-node-label">${esc(r.shortLbl)}</div>` : ''}
+      ${displayYear ? `<div class="lin-node-year">${esc(displayYear)}</div>` : ''}
+      ${r.shortLbl  ? `<div class="lin-node-label">${esc(r.shortLbl)}</div>` : ''}
+      ${clickable   ? `<div class="lin-node-hint">open ↗</div>` : ''}
     </div>${connector}`;
   }).join('');
 
@@ -1983,6 +1997,18 @@ function renderLineageCounts() {
     [records] = await Promise.all([fetchAll(), fetchGenealogy()]);
     // Sort by date descending (most recent first)
     records.sort((a, b) => (cv(b.fields, F.date)||'').localeCompare(cv(a.fields, F.date)||''));
+    // Cross-reference: enrich genMap nodes with adoption year + drawer link from Amendments
+    records.forEach(r => {
+      const od = cv(r.fields, F.ordnum) || '';
+      const m  = od.match(/\d{4,}/);
+      if (!m) return;
+      const key = m[0];
+      if (genMap[key]) {
+        const dt = cv(r.fields, F.date) || '';
+        genMap[key].amendYear = dt ? dt.slice(0, 4) : '';
+        genMap[key].amendId   = r.id;
+      }
+    });
 
     renderStats();
     renderThemeFilters();
