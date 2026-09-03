@@ -1362,6 +1362,7 @@ const GF = {
   branch:     'fldhIrNChUjlrCmHk',  // Branch name
   reltype:    'fldRSvHZqJeRyCNDi',  // Relationship Type
   date:       'fldEMRDoR4qiWyYEK',  // Ordinance date
+  sourceUrl:  'fldybjtuDpbu0A0js',  // Source document URL (IQM2 or Laserfiche)
 };
 
 const F = {
@@ -1529,6 +1530,7 @@ async function fetchGenealogy() {
         generation: f[GF.generation] || '',
         branch:     Array.isArray(f[GF.branch]) ? f[GF.branch][0] : (f[GF.branch] || ''),
         reltype:    f[GF.reltype]    || '',
+        sourceUrl:  f[GF.sourceUrl]  || '',
       };
     });
     // renderLineageTab() is called from init after cross-reference enrichment
@@ -1550,39 +1552,61 @@ function countOrd(recs) {
   return recs.filter(r => r.isOrd).length;
 }
 
+function genTierLabel(genStr) {
+  const num = parseInt((genStr || '').replace(/\D/g, ''));
+  if (isNaN(num)) return 'Historical Reference';
+  if (num === 0)  return 'Current Code';
+  if (num === 1)  return 'Direct Amendment';
+  if (num === 2)  return 'Major Revision';
+  return 'Foundational Code';
+}
+
 function openLinNode(key) {
   const g = genMap[key];
   if (!g) return;
-  // If we have a full Amendments record, open the drawer
+  // Nodes with a full Amendments record → open the standard drawer
   if (g.amendId) { openDrawer(g.amendId); return; }
-  // Otherwise show inline genealogy mini-panel
-  const det = document.getElementById('lin-node-detail');
-  if (!det) return;
-  // Toggle off if same node clicked again
-  if (det.style.display !== 'none' && det.dataset.key === key) {
-    det.style.display = 'none'; det.dataset.key = ''; return;
-  }
-  det.dataset.key = key;
-  const parts = [];
-  if (g.generation) parts.push(`Generation ${esc(g.generation)}`);
-  if (g.conf)       parts.push(`${esc(g.conf)} confidence`);
-  if (g.year)       parts.push(esc(g.year));
-  det.innerHTML = `<div class="lin-mini-card">
-    <div class="lin-mini-head">
-      <span class="lin-mini-ord">Ord. ${esc(g.ordDisplay || key)}</span>
-      ${g.label ? `<span class="lin-mini-lbl">${esc(g.label)}</span>` : ''}
+  // Historical nodes → open the same drawer with an Expression Panel
+  const tierLabel = genTierLabel(g.generation);
+  const srcHTML = g.sourceUrl
+    ? `<a href="${esc(g.sourceUrl)}" target="_blank" rel="noopener" class="src-link">View source document ↗</a>`
+    : `<span style="font-style:italic;color:var(--text-muted);">Not yet linked — search the
+        <a href="https://documents.miamigov.com/WebLink/Welcome.aspx?dbid=0&repo=Administration"
+           target="_blank" rel="noopener" style="color:var(--teal);">Laserfiche archive ↗</a></span>`;
+  document.getElementById('dr-status').innerHTML =
+    `<span class="pill pill-ref" style="background:var(--bg);color:var(--text-muted);border:1px solid var(--border);font-size:11px;">Genealogy Reference</span>`;
+  document.getElementById('dr-ordnum').textContent = `Ord. ${g.ordDisplay || key}`;
+  document.getElementById('drawer-body').innerHTML = `
+    <h2 style="font-family:Georgia,serif;font-size:18px;font-weight:bold;color:var(--text);margin-bottom:22px;line-height:1.4;">${esc(g.label || g.name || 'Ordinance ' + key)}</h2>
+    <div class="detail-sec">
+      <div class="detail-lbl">Policy Family</div>
+      <div class="detail-val">${esc(g.branch || '—')}</div>
     </div>
-    ${parts.length ? `<div class="lin-mini-meta">${parts.join('<span class="lin-mini-sep"> · </span>')}</div>` : ''}
-    <p class="lin-mini-note">Historical ordinance — not yet in the full amendments database. Genealogy data shown above.</p>
-  </div>`;
-  det.style.display = 'block';
+    <div class="detail-sec">
+      <div class="detail-lbl">Legislative Tier</div>
+      <div class="detail-val">${esc(tierLabel)}<span style="color:var(--text-muted);font-size:12px;margin-left:8px;">${esc(g.generation || '')}</span></div>
+    </div>
+    ${g.reltype ? `<div class="detail-sec"><div class="detail-lbl">Relationship</div><div class="detail-val">${esc(g.reltype)}</div></div>` : ''}
+    ${g.year    ? `<div class="detail-sec"><div class="detail-lbl">Adoption Year</div><div class="detail-val">${esc(g.year)}</div></div>` : ''}
+    ${g.conf    ? `<div class="detail-sec"><div class="detail-lbl">Confidence</div><div class="detail-val">${esc(g.conf)}</div></div>` : ''}
+    <div class="detail-sec">
+      <div class="detail-lbl">Source Document</div>
+      <div class="detail-val">${srcHTML}</div>
+    </div>
+    <div style="margin-top:32px;padding:14px 16px;background:var(--bg);border-radius:8px;border:1px solid var(--border);">
+      <p style="font-size:12px;color:var(--text-muted);margin:0;line-height:1.65;">
+        This ordinance is documented in the Policy Genealogy as an ancestor of current Miami 21 law.
+        A full legislative record — Plain English summary, mechanism analysis, and Impact Cards — will be added as the archive expands.
+      </p>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer').setAttribute('aria-hidden', 'false');
+  document.querySelector('.drawer-close').focus();
 }
 
 function selectBranch(br) {
   selectedBranch = br;
-  // Hide mini-panel when switching branches
-  const det = document.getElementById('lin-node-detail');
-  if (det) { det.style.display = 'none'; det.dataset.key = ''; }
   const branches = buildBranches();
   renderFamilyGrid(branches);
   renderSelectedChain(branches);
@@ -1670,8 +1694,7 @@ function renderSelectedChain(branches) {
       <div class="lin-track">${nodesHTML}</div>
     </div>
     <p class="lin-help">Click any node to open its legislative record.</p>
-  </div>
-  <div id="lin-node-detail" style="display:none;"></div>`;
+  </div>`;
 }
 
 function renderLineageTab() {
